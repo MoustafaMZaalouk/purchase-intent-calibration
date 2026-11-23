@@ -1,33 +1,11 @@
-name: Initialize approved source
+name: Publication verification
 on: [workflow_dispatch]
 permissions:
-  contents: write
+  contents: read
 jobs:
-  initialize:
+  verify:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Initialize reviewed project once
-        shell: python
-        run: |
-          import base64,hashlib,io,pathlib,zipfile
-          if not pathlib.Path('README.md').exists():
-              payload = "".join(p.read_text() for p in sorted(pathlib.Path(".publish").glob("part*.txt")))
-              data=base64.b64decode(payload)
-              assert hashlib.sha256(data).hexdigest()=='aa3d4b378d43904fa45bbbbb4e3a0b24f22931433625d17cd7ddfaf537103e5c'
-              with zipfile.ZipFile(io.BytesIO(data)) as z:
-                  for item in z.infolist():
-                      path=pathlib.Path(item.filename)
-                      assert not path.is_absolute() and '..' not in path.parts
-                  z.extractall('.', members=[i for i in z.namelist() if not i.startswith('.github/workflows/')])
-                  for item in z.infolist():
-                      mode=item.external_attr >> 16
-                      if mode and pathlib.Path(item.filename).exists(): pathlib.Path(item.filename).chmod(mode)
-      - name: Publish source and remove one-time initializer
-        run: |
-          git config user.name 'github-actions[bot]'
-          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          rm -r .publish
-          git add -A
-          git commit -m 'Publish reviewed AI-assisted purchase intent project'
-          git push
+      - name: Check publication artifacts
+        run: test -f README.md && test -f LICENSE && test ! -d .publish
