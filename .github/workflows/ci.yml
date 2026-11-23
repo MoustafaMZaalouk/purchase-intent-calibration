@@ -1,0 +1,29 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  lint-test-smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install pinned dependencies
+        run: pip install -r requirements.txt
+
+      - name: Lint
+        run: ruff check src scripts tests
+
+      - name: Download dataset (UCI ML Repository, CC BY 4.0)
+        run: python scripts/download_data.py
+
+      - name: Tests (includes data validation and smoke train on a subsample)
+        run: pytest tests/ -q
