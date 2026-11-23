@@ -1,8 +1,9 @@
 # Purchase Intent Calibration
 
-Can you predict, partway through an e-commerce browsing session, whether it
-will end in a purchase? And if the model outputs a probability, can you trust
-that number?
+How well can session-level browsing features distinguish purchases from
+non-purchases? And how reliable are the resulting model probabilities?
+This is an offline evaluation of completed-session aggregates, not a
+demonstration of prediction during an ongoing session.
 
 This project trains two models on the public
 [Online Shoppers Purchasing Intention dataset](https://archive.ics.uci.edu/dataset/468/online+shoppers+purchasing+intention+dataset)
@@ -12,12 +13,12 @@ This project trains two models on the public
 quality (precision/recall at a validation-chosen threshold).
 
 **Headline finding (measured, not aspirational):** without `PageValues`, the
-early-session features are only weakly predictive (test PR-AUC ~0.32 vs a
+remaining session-level features are only weakly predictive (test PR-AUC ~0.32 vs a
 0.207 prevalence baseline). With `PageValues`, test PR-AUC jumps to 0.60-0.66.
-`PageValues` is borderline leakage for any "predict during the session" use
-case - it is only fully known once the session ends - so it is **excluded by
-default** and the with/without comparison is a first-class result, not a
-footnote. See [Results](#results) and [Limitations](#limitations).
+The availability of `PageValues` at a live decision point is not established
+by this static dataset, so it is **excluded by default** as a conservative
+choice. Removing it does not make the other full-session features available
+early. See [Results](#results) and [Limitations](#limitations).
 
 ## Dataset
 
@@ -86,7 +87,7 @@ All numbers are on the held-out test months (Oct-Dec) unless marked
 "validation". Reproduce with `make train` - outputs land in
 `results/metrics*.json`.
 
-### Default configuration (PageValues excluded, early-session features only)
+### Default configuration (PageValues excluded, session-level features)
 
 | Model | Split | PR-AUC | ROC-AUC | Brier | ECE |
 |---|---|---|---|---|---|
@@ -96,7 +97,7 @@ All numbers are on the held-out test months (Oct-Dec) unless marked
 | Gradient boosting | **test** | **0.3213** | **0.6706** | **0.1671** | **0.1023** |
 
 Test prevalence baseline for PR-AUC: 0.207. Both models beat it, but the
-honest reading is that early-session behaviour is only weakly informative:
+honest reading is that the remaining session-level features are only weakly informative:
 a PR-AUC of 0.32 is a signal, not a product.
 
 **Decision thresholds.** The F1-optimal threshold chosen on validation and
@@ -146,15 +147,15 @@ With PageValues included, gradient boosting clearly wins on ranking
 threshold (0.417) on test. Calibration after Platt/isotonic: logistic ECE
 0.0368/0.0300, boosting ECE 0.0421/0.0528 (Brier 0.1180-0.1251).
 
-**Why PageValues is excluded by default.** Per the dataset documentation,
-PageValues is "the average value for a web page that a user visited *before
-completing an e-commerce transaction*". It is strongly associated with the
-label precisely because it is computed with knowledge of how the session
-ended. Scoring a session mid-flight with its final PageValues value is
-borderline leakage: the 0.60-0.66 PR-AUC above is real, but it answers
-"did this finished session end in a purchase?", not "will this ongoing
-session end in one?". Both configurations are reported so the difference is
-visible and measurable instead of hidden.
+**Why PageValues is excluded by default.** The dataset describes an average
+page-value feature related to pages visited before a transaction. That
+description alone does not establish exactly how it was computed for each
+row or when it would be available in a live system. Its strong association
+with the target warrants checking feature provenance and decision-time
+availability before deployment, rather than treating the higher scores as
+proof of real-time usefulness. Both configurations use published
+session-level aggregates. Neither establishes performance on partial
+sessions. The with/without comparison is reported rather than hidden.
 
 ![PR curves](results/pr_curves.png)
 ![Reliability diagrams](results/reliability.png)
@@ -165,8 +166,8 @@ The isotonic calibrator is fitted on only 881 validation rows (approximately 162
 
 - **Session-level evaluation, not a proven real-time decision system.**
   Features are the full-session aggregates from the published file. A
-  deployment would need to re-derive them from partial sessions, and metrics
-  would drop. Nothing here demonstrates live performance.
+  deployment would need to re-derive them from partial sessions, and performance
+  would need to be measured again. Nothing here demonstrates live performance.
 - **One temporal split.** A single train/val/test cut is reported; there are
   no confidence intervals across multiple time folds. The strong label drift
   (10.6% positives in train vs 20.7% in test, driven by November holiday
