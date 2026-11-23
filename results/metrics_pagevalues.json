@@ -1,0 +1,189 @@
+{
+  "config": {
+    "seed": 42,
+    "include_page_values": true,
+    "split": "temporal by Month: train Feb-Jul, val Aug-Sep, test Oct-Dec (chronological, no random rows)",
+    "threshold_rule": "maximise F1 on validation, frozen before test; test also reported at fixed 0.3 and 0.5",
+    "calibration": "Platt and isotonic fitted on validation scores only, applied to frozen test scores"
+  },
+  "splits": {
+    "train": {
+      "n": 6175,
+      "positive_rate": 0.10607287449392712,
+      "months": [
+        "Feb",
+        "Jul",
+        "June",
+        "Mar",
+        "May"
+      ]
+    },
+    "val": {
+      "n": 881,
+      "positive_rate": 0.18388195232690124,
+      "months": [
+        "Aug",
+        "Sep"
+      ]
+    },
+    "test": {
+      "n": 5274,
+      "positive_rate": 0.2068638604474782,
+      "months": [
+        "Dec",
+        "Nov",
+        "Oct"
+      ]
+    }
+  },
+  "models": {
+    "logistic_regression": {
+      "validation": {
+        "n": 881,
+        "positive_rate": 0.18388195232690124,
+        "pr_auc": 0.5910905752294744,
+        "roc_auc": 0.8051735091605281,
+        "brier": 0.11374221126300314,
+        "log_loss": 0.40499472741998543,
+        "ece": 0.06754456758322883,
+        "at_threshold": {
+          "threshold": 0.10782220562729934,
+          "precision": 0.5421052631578948,
+          "recall": 0.6358024691358025,
+          "f1": 0.5852272727272728,
+          "predicted_positive_rate": 0.21566401816118047,
+          "selected_on": "validation"
+        }
+      },
+      "test": {
+        "n": 5274,
+        "positive_rate": 0.2068638604474782,
+        "pr_auc": 0.6053325946670345,
+        "roc_auc": 0.817477796843888,
+        "brier": 0.12745924017884389,
+        "log_loss": 0.45983288575266723,
+        "ece": 0.08528410446061624,
+        "at_threshold": {
+          "threshold": 0.10782220562729934,
+          "precision": 0.5739348370927319,
+          "recall": 0.6296975252062328,
+          "f1": 0.6005244755244755,
+          "predicted_positive_rate": 0.22696245733788395,
+          "selected_on": "validation"
+        },
+        "at_fixed_thresholds": {
+          "0.3": {
+            "threshold": 0.3,
+            "precision": 0.7036496350364964,
+            "recall": 0.44179651695692024,
+            "f1": 0.5427927927927927,
+            "predicted_positive_rate": 0.12988244216913158
+          },
+          "0.5": {
+            "threshold": 0.5,
+            "precision": 0.7355212355212355,
+            "recall": 0.34922089825847846,
+            "f1": 0.47358607830950905,
+            "predicted_positive_rate": 0.09821767159651118
+          }
+        }
+      },
+      "calibration_on_test": {
+        "raw": {
+          "ece": 0.08528410446061624,
+          "brier": 0.12745924017884389,
+          "log_loss": 0.45983288575266723
+        },
+        "platt": {
+          "ece": 0.03684502115358392,
+          "brier": 0.12511155744371397,
+          "log_loss": 0.40736061622438813
+        },
+        "isotonic": {
+          "ece": 0.03003363261422778,
+          "brier": 0.11801981191380789,
+          "log_loss": 0.4667094988253576
+        }
+      },
+      "chosen_threshold": 0.10782220562729934,
+      "chosen_threshold_val_f1": 0.5852272727272728
+    },
+    "gradient_boosting": {
+      "validation": {
+        "n": 881,
+        "positive_rate": 0.18388195232690124,
+        "pr_auc": 0.6579568198811683,
+        "roc_auc": 0.8571146482597573,
+        "brier": 0.105712111199865,
+        "log_loss": 0.5030156792702108,
+        "ece": 0.08165333025699409,
+        "at_threshold": {
+          "threshold": 0.41702439955339515,
+          "precision": 0.6827586206896552,
+          "recall": 0.6111111111111112,
+          "f1": 0.6449511400651466,
+          "predicted_positive_rate": 0.16458569807037457,
+          "selected_on": "validation"
+        }
+      },
+      "test": {
+        "n": 5274,
+        "positive_rate": 0.2068638604474782,
+        "pr_auc": 0.6615302678534646,
+        "roc_auc": 0.8360229184821897,
+        "brier": 0.1238116032291209,
+        "log_loss": 0.6270031742802487,
+        "ece": 0.10170476788414289,
+        "at_threshold": {
+          "threshold": 0.41702439955339515,
+          "precision": 0.7228739002932552,
+          "recall": 0.45187901008249315,
+          "f1": 0.5561195713479977,
+          "predicted_positive_rate": 0.12931361395525218,
+          "selected_on": "validation"
+        },
+        "at_fixed_thresholds": {
+          "0.3": {
+            "threshold": 0.3,
+            "precision": 0.6818181818181818,
+            "recall": 0.49495875343721357,
+            "f1": 0.5735528412108337,
+            "predicted_positive_rate": 0.15017064846416384
+          },
+          "0.5": {
+            "threshold": 0.5,
+            "precision": 0.7479674796747967,
+            "recall": 0.4216315307057745,
+            "f1": 0.5392731535756154,
+            "predicted_positive_rate": 0.11660978384527873
+          }
+        }
+      },
+      "calibration_on_test": {
+        "raw": {
+          "ece": 0.10170476788414289,
+          "brier": 0.1238116032291209,
+          "log_loss": 0.6270031742802487
+        },
+        "platt": {
+          "ece": 0.04205434363228172,
+          "brier": 0.11976024228557496,
+          "log_loss": 0.3946461038202322
+        },
+        "isotonic": {
+          "ece": 0.05278447503284211,
+          "brier": 0.1147496343735963,
+          "log_loss": 0.5040257535556175
+        }
+      },
+      "chosen_threshold": 0.41702439955339515,
+      "chosen_threshold_val_f1": 0.6449511400651466
+    }
+  },
+  "data": {
+    "path": "online_shoppers_intention.csv",
+    "sha256": "b3055ee355f59134d851d32641183cb4a8b45def7124d2f50442a042f358e0d9",
+    "rows": 12330,
+    "positive_rate": 0.15474452554744525
+  }
+}
