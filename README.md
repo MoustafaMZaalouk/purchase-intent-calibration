@@ -1,5 +1,9 @@
 # Purchase Intent Calibration
 
+[![CI](https://github.com/MoustafaMZaalouk/purchase-intent-calibration/workflows/CI/badge.svg)](https://github.com/MoustafaMZaalouk/purchase-intent-calibration/blob/main/.github/workflows/ci.yml)
+
+*Live workflow status, not a production-readiness or model-quality rating.*
+
 How well can session-level browsing features distinguish purchases from
 non-purchases? And how reliable are the resulting model probabilities?
 This is an offline evaluation of completed-session aggregates, not a
